@@ -1,14 +1,37 @@
+import argparse
 import git
+import json
 import os
 import sys
 
 if __name__ == "__main__":
 
-    # Get command line arguments
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--config", "-c", type=str)
+
+    args=parser.parse_args()
+    config = args.config
     cwd = os.getcwd()
-    args = sys.argv
-    # Handle missing parameters with `getopt`
-    project_name = args[1]
+
+    try:
+        with open(config) as f:
+            config_data = json.load(f)
+
+        project_name = config_data["project_name"]
+        repo_name = config_data["repo_name"]
+        author_name = config_data["author_name"]
+        description = config_data["description"]
+        python_interpreter = config_data["python_interpreter"]
+
+    except TypeError as e:
+        print("Config file not provided")
+        sys.exit()
+    except KeyError as e:
+        print(f"KeyError, config does not contain key {e}")
+        sys.exit()
+    except:
+        print(f"Unexpected error: {sys.exc_info()[0]}")
+        raise
 
     # Initialise git repository for new project folder
     repo_dir = os.path.join(cwd, project_name)
